@@ -4,8 +4,8 @@
  * See COPYING.txt for license details.
  */
 
-// phpcs:disable Generic.Files.LineLength
-// phpcs:disable Magento2.Templates.ThisInTemplate.FoundHelper
+// @codingStandardsIgnoreFile
+
 ?>
 <?php
 /**
@@ -16,9 +16,20 @@
 ?>
 <form id="checkout_multishipping_form"
       data-mage-init='{
-          "multiShipping": {"itemsQty": <?= /* @noEscape */ (int)$block->getCheckout()->getQuote()->getItemsSummaryQty() ?>},
+          "multiShipping":{},
+          "validation":{},
           "cartUpdate": {
-               "validationURL": "<?= $block->escapeUrl($block->getUrl('multishipping/checkout/checkItems')) ?>",
+               "validationURL": "/multishipping/checkout/checkItems",
+               "eventName": "updateMulticartItemQty"
+          }}'
+      action="<?= $block->escapeUrl($block->getPostActionUrl()) ?>"
+      method="post"
+      class="multicheckout address form">
+<form id="checkout_multishipping_form"
+      data-mage-init='{
+          "multiShipping":{},
+          "cartUpdate": {
+               "validationURL": "/multishipping/checkout/checkItems",
                "eventName": "updateMulticartItemQty"
           }}'
       action="<?= $block->escapeUrl($block->getPostActionUrl()) ?>"
@@ -44,7 +55,7 @@
             </thead>
             <tbody>
             <?php foreach ($block->getItems() as $_index => $_item): ?>
-                <?php if ($_item->getQuoteItem()): ?>
+                <?php if ($_item->getQuoteItem()) : ?>
                     <tr>
                         <td class="col product" data-th="<?= $block->escapeHtml(__('Product')) ?>">
                             <?= $block->getItemHtml($_item->getQuoteItem()) ?>
@@ -62,9 +73,8 @@
                                            name="ship[<?= $block->escapeHtml($_index) ?>][<?= $block->escapeHtml($_item->getQuoteItemId()) ?>][qty]"
                                            value="<?= $block->escapeHtml($_item->getQty()) ?>"
                                            size="2"
-                                           min="0"
                                            class="input-text qty"
-                                           data-validate="{number: true, required:true, 'validate-greater-than-zero':true}"/>
+                                           data-validate="{number: true}"/>
                                 </div>
                             </div>
                         </td>
@@ -86,12 +96,8 @@
                             <?php endif; ?>
                         </td>
                         <td class="col actions" data-th="<?= $block->escapeHtml(__('Actions')) ?>">
-                            <a href="#"
+                            <a href="<?= $block->escapeUrl($block->getItemDeleteUrl($_item)) ?>"
                                title="<?= $block->escapeHtml(__('Remove Item')) ?>"
-                               data-post='<?= /* @noEscape */
-                                $this->helper(\Magento\Framework\Data\Helper\PostHelper::class)
-                                   ->getPostData($block->getItemDeleteUrl($_item))
-                                ?>'
                                class="action delete"
                                data-multiship-item-remove="">
                                 <span><?= $block->escapeHtml(__('Remove item')) ?></span>
@@ -107,10 +113,10 @@
         <div class="primary">
             <button type="submit"
                     title="<?= $block->escapeHtml(__('Go to Shipping Information')) ?>"
-                    class="action primary continue<?= $block->isContinueDisabled() ? ' disabled' : '' ?>"
+                    class="action primary continue<?php if ($block->isContinueDisabled()):?> disabled<?php endif; ?>"
                     data-role="can-continue"
                     data-flag="1"
-                <?php if ($block->isContinueDisabled()): ?>
+                <?php if ($block->isContinueDisabled()):?>
                     disabled="disabled"
                 <?php endif; ?>>
                 <span><?= $block->escapeHtml(__('Go to Shipping Information')) ?></span>
